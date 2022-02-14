@@ -1,0 +1,56 @@
+---
+
+- name: Install packages for Apache
+  become: true
+  yum:
+    name: "{{ centos_apache_packages }}"
+    state: present
+
+- name: Ensure httpd is running.
+  become: true
+  service:
+    name: httpd 
+    state: started
+    enabled: yes
+
+- name: Open port 80 in the firewall, for http access.
+  become: true
+  firewalld:
+    service: http
+    permanent: true
+    state: enabled
+
+- name: Copy Virtualhost config
+  become: true
+  ansible.builtin.copy:
+    src: alma.com.conf
+    dest: "{{ httpd_config_directory }}"
+    mode: '0644'
+
+#- name: Copy Virtualhost config
+#  become: true
+#  template:
+#    src: "{{ httdp_config_file }}"
+#    dest: "{{ httpd_config_directory }}"
+#    owner: root
+#    group: root
+#    mode: 0644
+
+#- name: Create virtual sites-available and sites-enabled folders
+#  become: true
+#  file:
+#    path: "{{ item }}"
+#    state: directory
+#    owner: root
+#    group: root
+#    mode: 0775
+#  loop:
+#    - /etc/httpd/sites-available
+#    - /etc/httpd/sites-enabled#
+
+#- name: Enable Virtual host configurations
+#  become: true
+#  lineinfile:
+#    path: /etc/httpd/conf/httpd.conf
+#    insertafter: '[mysqld]'
+#    line: default-authentication-plugin=mysql_native_password

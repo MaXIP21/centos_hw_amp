@@ -1,0 +1,3 @@
+doc_root: /var/www/alma.com/docroot/
+httdp_config_file: alma.com.conf.j2
+httpd_config_directory: /etc/httpd/conf.d/
