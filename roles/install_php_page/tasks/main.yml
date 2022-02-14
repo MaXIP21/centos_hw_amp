@@ -1,0 +1,16 @@
+---
+- name: "Creating Document root"
+  become: true
+  file:
+       state: directory
+       dest: "{{ doc_root }}"
+
+- name: Copy php file to destination
+  become: true
+  ansible.builtin.copy:
+    src: index.php
+    owner: root
+    group: root
+    dest: "{{ doc_root }}"
+    mode: '0644'
+    force: no

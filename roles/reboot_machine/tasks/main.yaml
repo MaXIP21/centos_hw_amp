@@ -1,0 +1,4 @@
+- name: Reboot the machine and wait till it's up
+  become: true
+  reboot:
+    reboot_timeout: 3600

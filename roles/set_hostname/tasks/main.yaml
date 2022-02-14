@@ -1,0 +1,10 @@
+---
+- name: Update the /etc/hosts file with node name
+  tags: etchostsupdate
+  become: yes
+  become_user: root
+  lineinfile:
+    dest: "/etc/hosts"
+    regexp: '^127\.0\.0\.1[ \t]+localhost'
+    line: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 {{ new_hostname }}'
+    state: present

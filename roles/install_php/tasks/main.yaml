@@ -1,0 +1,7 @@
+---
+
+- name: Install packages for PHP
+  become: true
+  yum:
+    name: "{{ centos_php_packages }}"
+    state: present
