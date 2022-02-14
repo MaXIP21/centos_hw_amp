@@ -8,3 +8,9 @@
     regexp: '^127\.0\.0\.1[ \t]+localhost'
     line: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 {{ new_hostname }}'
     state: present
+
+- name: Set a hostname with systemd strategy
+  become: yes
+  ansible.builtin.hostname:
+    name: '{{ server_hostname }}'
+    use: systemd
