@@ -1,0 +1,27 @@
+---
+
+centos_base_packages:
+  - git
+  - wget
+  - python3
+  - python3-devel
+  - python3-pip
+
+mysql_yum_repositories:
+  - mysql-release-el7
+
+centos_mysql_packages:
+  - mysql-community-server
+  - mysql-community-client
+  - MySQL-python
+
+centos_apache_packages:
+  - httpd
+
+centos_php_packages:
+  - php
+  - php-mysql
+
+
+
+
