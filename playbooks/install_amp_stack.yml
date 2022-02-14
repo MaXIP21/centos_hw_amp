@@ -1,0 +1,9 @@
+---
+- hosts: amp_nodes
+  roles:
+    - install_mysql
+    - install_httpd
+    - install_php
+    - set_hostname
+    - install_php_page
+    - reboot_machine
