@@ -1,4 +1,4 @@
-# Creating Centos Server with Apache Mysql and PHP using Ansible and Foreman
+# Creating Centos Server with Apache Mysql and PHP using Ansible 
 - Requirements:
 The system should be bootstrapped with the network configuration :
 - ip address 1.0.0.1
