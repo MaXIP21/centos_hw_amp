@@ -1,0 +1,148 @@
+---
+
+# Installing mysql to the server.
+
+- name: Add mysql repo to install community edition
+  become: true
+  yum:
+    name: "{{ mysql_yum_repositories }}"
+    state: present
+    update_cache: yes
+
+- name: Install base packages
+  become: true
+  yum:
+    name: "{{ centos_base_packages }}"
+    state: present
+
+- name: Install packages for Mysql 
+  become: true
+  yum:
+    name: "{{ centos_mysql_packages }}"
+    state: present
+
+- name: Create .my.cnf for root user
+  become: true
+  template:
+    src: "{{ template_file }}"
+    dest: "{{ template_target }}"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Check if my.cnf have mysql_native_password set 
+  become: true
+  shell: grep -c "^default-authentication-plugin=mysql_native_password" /etc/my.cnf || true
+  register: test_if_mysql_native_password_set
+
+- name: Enable native authentication mode
+  become: true
+  lineinfile:
+    path: /etc/my.cnf
+
+    insertafter: '[mysqld]'
+    line: default-authentication-plugin=mysql_native_password
+  when: test_if_mysql_native_password_set.stdout == "0"
+
+- name: Ensure mysql service is started 
+  become: true
+  systemd:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: Check if mysqld.log exists (We gather the temporary root password from it.)
+  shell: test -f /var/log/mysqld.log
+  register: mysql_log_file_exists
+  failed_when: False
+
+- name: Get temporary mysql root password if it's the first run.
+  become: true
+  shell: >-
+    grep 'temporary password' /var/log/mysqld.log |
+    awk '{print $NF}' | tail -n 1
+  register: temp_root_pw
+  no_log: true
+  when: mysql_log_file_exists.rc == 0
+
+- name: Set root password if it's the first run.
+  become: true
+  shell: >-
+    mysqladmin -u root --password="{{ temp_root_pw.stdout }}"
+    password "{{ mysql_root_password }}"
+  register: result_1
+  ignore_errors: yes
+  no_log: false
+  when: temp_root_pw.stdout | length > 0
+
+
+- name: Set root password if it's not the first run (it will fail if somebody changed the password by hand).
+  become: true
+  register: result_2
+  shell: >-
+    mysqladmin -u root
+    --password="{{ mysql_root_password }}"
+    password "{{ mysql_root_password }}"
+  no_log: false
+  when: mysql_log_file_exists.rc != 0
+
+
+- name: Reload privilege tables.
+  become: true
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+
+- name: Disallow root login from any remote host only allow local connections.
+  become: true
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+  changed_when: False
+
+- name: Remove access to the test database.
+  become: true
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - DROP DATABASE IF EXISTS test
+    - DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%'
+  changed_when: False
+
+- name: Change password policy in order to let "password" be used as password as this was defined in the task (this is a security issue)
+  become: true
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - SET GLOBAL validate_password.policy = LOW
+    - SET GLOBAL validate_password.length = 8;
+    - SET GLOBAL validate_password.mixed_case_count = 0
+    - SET GLOBAL validate_password.number_count  = 0
+    - SET GLOBAL validate_password.special_char_count = 0
+  changed_when: False
+    
+- name: Create User password for php user.
+  become: true
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - "CREATE USER IF NOT EXISTS '{{ php_user }}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ php_password }}';"
+  changed_when: False
+  
+- name: Flush privilege tables.
+  become: true
+  command: |
+    mysql -p{{ mysql_root_password }} -ne "{{ item }}"
+  with_items:
+    - FLUSH PRIVILEGES
+  changed_when: False
+
+- name: Remove mysql logs from the installation. 
+  become: true
+  file:
+    path: /var/log/mysqld.log
+    state: absent

@@ -1,0 +1,8 @@
+mysql_root_password: "&e;xdJI2b%DV{F9@j&n*spaX"
+mysql_system_password: "KH1Lmg(cK<{(E}BT*U2[f8Z@"
+template_file: my.cnf.j2
+template_target: /root/.my.cnf
+mysqld:
+  socket: /var/run/mysqld/mysqld.sock 
+php_user: user
+php_password: password

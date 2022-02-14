@@ -26,31 +26,3 @@
     src: alma.com.conf
     dest: "{{ httpd_config_directory }}"
     mode: '0644'
-
-#- name: Copy Virtualhost config
-#  become: true
-#  template:
-#    src: "{{ httdp_config_file }}"
-#    dest: "{{ httpd_config_directory }}"
-#    owner: root
-#    group: root
-#    mode: 0644
-
-#- name: Create virtual sites-available and sites-enabled folders
-#  become: true
-#  file:
-#    path: "{{ item }}"
-#    state: directory
-#    owner: root
-#    group: root
-#    mode: 0775
-#  loop:
-#    - /etc/httpd/sites-available
-#    - /etc/httpd/sites-enabled#
-
-#- name: Enable Virtual host configurations
-#  become: true
-#  lineinfile:
-#    path: /etc/httpd/conf/httpd.conf
-#    insertafter: '[mysqld]'
-#    line: default-authentication-plugin=mysql_native_password

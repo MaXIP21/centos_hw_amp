@@ -7,3 +7,7 @@ The system should be bootstrapped with the network configuration :
 - ssh-key
 User needs to be created with a possibility of privilige escalation using sudo
 A new ssh key should be added to the created user in order for the ansible playbook to make changes on the host. 
+
+# Running the playbook
+Run the playbook using the following command: also please provide the sudo password for the ansible user as an extra var 
+$ ansible-playbook  playbooks/install_amp_stack.yml --extra-vars "ansible_sudo_pass=<YourPassword>"
