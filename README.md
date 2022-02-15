@@ -10,4 +10,4 @@ A new ssh key should be added to the created user in order for the ansible playb
 
 # Running the playbook
 Run the playbook using the following command: also please provide the sudo password for the ansible user as an extra var 
-$ ansible-playbook  playbooks/install_amp_stack.yml --extra-vars "ansible_sudo_pass=<YourPassword>"
+$ ansible-playbook  playbooks/install_amp_stack.yml --extra-vars "ansible_sudo_pass=[YourPassword]"
